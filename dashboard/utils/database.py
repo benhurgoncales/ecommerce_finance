@@ -27,8 +27,12 @@ def _engine():
 
 @st.cache_data(ttl=300)
 def run_query(sql: str, params: dict | None = None) -> pd.DataFrame:
-    with _engine().connect() as conn:
-        return pd.read_sql(text(sql), conn, params=params or {})
+    try:
+        with _engine().connect() as conn:
+            return pd.read_sql(text(sql), conn, params=params or {})
+    except Exception as e:
+        # Expose sanitized error (without credentials) so Streamlit doesn't redact it
+        raise RuntimeError(f"Falha na conexão com o banco: {type(e).__name__}: {str(e).split('(Background')[0].strip()}") from None
 
 
 def get_competencias() -> list[str]:
