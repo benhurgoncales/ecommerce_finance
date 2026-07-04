@@ -27,16 +27,17 @@ def _engine():
 
 @st.cache_data(ttl=300)
 def run_query(sql: str, params: dict | None = None) -> pd.DataFrame:
-    try:
-        with _engine().connect() as conn:
-            return pd.read_sql(text(sql), conn, params=params or {})
-    except Exception as e:
-        # Expose sanitized error (without credentials) so Streamlit doesn't redact it
-        raise RuntimeError(f"Falha na conexão com o banco: {type(e).__name__}: {str(e).split('(Background')[0].strip()}") from None
+    with _engine().connect() as conn:
+        return pd.read_sql(text(sql), conn, params=params or {})
 
 
 def get_competencias() -> list[str]:
-    df = run_query(
-        "SELECT DISTINCT competencia FROM dre_consolidada ORDER BY competencia"
-    )
-    return df["competencia"].tolist()
+    try:
+        df = run_query(
+            "SELECT DISTINCT competencia FROM dre_consolidada ORDER BY competencia"
+        )
+        return df["competencia"].tolist()
+    except Exception as e:
+        msg = str(e).split("(Background")[0].strip()
+        st.error(f"**Erro de conexão com o banco:**\n\n`{type(e).__name__}: {msg}`")
+        st.stop()
