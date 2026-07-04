@@ -1,0 +1,23 @@
+# Credenciais — nunca versionar
+.env
+.streamlit/secrets.toml
+
+# Planilha com dados sensíveis
+*.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Claude Code
+.claude/
+
+# macOS
+.DS_Store
