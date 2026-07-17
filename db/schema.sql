@@ -126,6 +126,8 @@ CREATE TABLE folha_pagamento (
     bonus           NUMERIC(10,2) NOT NULL DEFAULT 0,
     fgts            NUMERIC(10,2) NOT NULL DEFAULT 0,  -- 8% sobre salário + bônus (CLT)
     inss_retido     NUMERIC(10,2) NOT NULL DEFAULT 0,  -- informativo
+    vr              NUMERIC(10,2) NOT NULL DEFAULT 0,  -- vale refeição
+    vt              NUMERIC(10,2) NOT NULL DEFAULT 0,  -- vale transporte
     criado_em       TIMESTAMP    NOT NULL DEFAULT NOW(),
     atualizado_em   TIMESTAMP    NOT NULL DEFAULT NOW(),
 
@@ -136,9 +138,11 @@ CREATE TABLE folha_pagamento (
 COMMENT ON TABLE  folha_pagamento            IS 'Lançamento mensal de remuneração por funcionário';
 COMMENT ON COLUMN folha_pagamento.fgts       IS 'Calculado automaticamente: 8% sobre (salário + bônus) para CLT';
 COMMENT ON COLUMN folha_pagamento.inss_retido IS 'Valor retido do funcionário — informativo, não duplicar no custo';
+COMMENT ON COLUMN folha_pagamento.vr         IS 'Vale Refeição — benefício, sem incidência de FGTS/INSS';
+COMMENT ON COLUMN folha_pagamento.vt         IS 'Vale Transporte — benefício, sem incidência de FGTS/INSS';
 
 -- Coluna calculada:
--- total_custo = salario_bruto + bonus + fgts  (INSS retido não soma — já está no bruto)
+-- total_custo = salario_bruto + bonus + fgts + vr + vt  (INSS retido não soma — já está no bruto)
 
 
 -- ============================================================
@@ -275,7 +279,9 @@ SELECT
     f.bonus,
     f.fgts,
     f.inss_retido,
-    f.salario_bruto + f.bonus + f.fgts  AS custo_total_empresa
+    f.vr,
+    f.vt,
+    f.salario_bruto + f.bonus + f.fgts + f.vr + f.vt  AS custo_total_empresa
 FROM folha_pagamento f
 JOIN funcionarios func ON func.id = f.funcionario_id;
 
@@ -334,7 +340,7 @@ BEGIN
     v_lucro_bruto     := v_receita_liquida - v_cmv_total - v_ads_total;
 
     -- Folha de pagamento
-    SELECT COALESCE(SUM(salario_bruto + bonus + fgts), 0)
+    SELECT COALESCE(SUM(salario_bruto + bonus + fgts + vr + vt), 0)
     INTO v_desp_folha
     FROM folha_pagamento
     WHERE competencia = p_competencia;

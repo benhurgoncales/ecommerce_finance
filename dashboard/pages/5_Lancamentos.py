@@ -74,7 +74,7 @@ tab_rec, tab_folha, tab_desp = st.tabs([
 
 COLS_REC   = ["Receita Bruta", "Imposto (DAS)", "Custo do Produto", "Frete",
               "Tarifa Plataforma", "Desconto / Cupom", "Afiliados", "Outros CMV", "Ads (Anúncios)"]
-COLS_FOLHA = ["Salário Bruto", "Bônus", "FGTS", "INSS Retido"]
+COLS_FOLHA = ["Salário Bruto", "Bônus", "FGTS", "INSS Retido", "VR", "VT"]
 
 DESPESAS_TEMPLATE = [
     {"Categoria": "Administrativo",         "Descrição": "Aluguel",              "Tipo": "fixo",     "Valor": "0,00"},
@@ -177,6 +177,8 @@ with tab_folha:
             "Bônus":         col_valor("Bônus"),
             "FGTS":          col_valor("FGTS", "CLT: calculado automaticamente (8%) se deixado em 0,00"),
             "INSS Retido":   col_valor("INSS Retido", "Informativo — não é custo extra"),
+            "VR":            col_valor("VR", "Vale Refeição"),
+            "VT":            col_valor("VT", "Vale Transporte"),
         },
         use_container_width=True,
         hide_index=True,
@@ -186,6 +188,7 @@ with tab_folha:
 
     total_folha = sum(
         parse_br(row["Salário Bruto"]) + parse_br(row["Bônus"]) + parse_br(row["FGTS"])
+        + parse_br(row["VR"]) + parse_br(row["VT"])
         for _, row in df_folha_edit.iterrows()
     )
     st.caption("💡 **FGTS** calculado automaticamente (8% de Salário + Bônus) para CLT se deixado em 0,00.")
@@ -207,6 +210,8 @@ with tab_folha:
                     "p_bonus":          bon,
                     "p_fgts":           fgts,
                     "p_inss_retido":    parse_br(row["INSS Retido"]),
+                    "p_vr":             parse_br(row["VR"]),
+                    "p_vt":             parse_br(row["VT"]),
                 })
             db_rpc("recalcular_dre", {"p_competencia": comp})
             run_query.clear()

@@ -407,7 +407,7 @@ LANGUAGE sql STABLE SECURITY DEFINER AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION fn_categorias_despesa()
-RETURNS TABLE(id uuid, nome text)
+RETURNS TABLE(id integer, nome text)
 LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT id, nome::text FROM categorias_despesa ORDER BY ordem;
 $$;
@@ -480,7 +480,7 @@ BEGIN
   LOOP
     INSERT INTO despesas (categoria_id, competencia, descricao, tipo, valor)
     VALUES (
-      (linha->>'categoria_id')::uuid,
+      (linha->>'categoria_id')::integer,
       p_competencia,
       linha->>'descricao',
       linha->>'tipo',
@@ -514,6 +514,9 @@ GRANT EXECUTE ON FUNCTION fn_receitas_lancamentos(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION fn_folha_lancamentos(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION fn_despesas_lancamentos(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION fn_categorias_despesa() TO anon, authenticated;
+
+-- Recarrega schema cache do PostgREST
+NOTIFY pgrst, 'reload schema';
 GRANT EXECUTE ON FUNCTION fn_upsert_receita(uuid,text,numeric,numeric,numeric,numeric,numeric,numeric,numeric,numeric,numeric) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION fn_upsert_folha(uuid,text,numeric,numeric,numeric,numeric) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION fn_salvar_despesas(text,jsonb) TO anon, authenticated;
