@@ -124,7 +124,7 @@ CREATE TABLE folha_pagamento (
     competencia     CHAR(7)      NOT NULL,
     salario_bruto   NUMERIC(10,2) NOT NULL DEFAULT 0,
     bonus           NUMERIC(10,2) NOT NULL DEFAULT 0,
-    fgts            NUMERIC(10,2) NOT NULL DEFAULT 0,  -- 8% sobre salário + bônus (CLT)
+    fgts            NUMERIC(10,2) NOT NULL DEFAULT 0,  -- informado manualmente
     inss_retido     NUMERIC(10,2) NOT NULL DEFAULT 0,  -- informativo
     vr              NUMERIC(10,2) NOT NULL DEFAULT 0,  -- vale refeição
     vt              NUMERIC(10,2) NOT NULL DEFAULT 0,  -- vale transporte
@@ -136,7 +136,7 @@ CREATE TABLE folha_pagamento (
 );
 
 COMMENT ON TABLE  folha_pagamento            IS 'Lançamento mensal de remuneração por funcionário';
-COMMENT ON COLUMN folha_pagamento.fgts       IS 'Calculado automaticamente: 8% sobre (salário + bônus) para CLT';
+COMMENT ON COLUMN folha_pagamento.fgts       IS 'Valor informado manualmente pelo usuário';
 COMMENT ON COLUMN folha_pagamento.inss_retido IS 'Valor retido do funcionário — informativo, não duplicar no custo';
 COMMENT ON COLUMN folha_pagamento.vr         IS 'Vale Refeição — benefício, sem incidência de FGTS/INSS';
 COMMENT ON COLUMN folha_pagamento.vt         IS 'Vale Transporte — benefício, sem incidência de FGTS/INSS';

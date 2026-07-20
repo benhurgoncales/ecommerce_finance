@@ -175,7 +175,7 @@ with tab_folha:
             "Tipo":          st.column_config.TextColumn("Tipo",        disabled=True, width="small"),
             "Salário Bruto": col_valor("Salário Bruto"),
             "Bônus":         col_valor("Bônus"),
-            "FGTS":          col_valor("FGTS", "CLT: calculado automaticamente (8%) se deixado em 0,00"),
+            "FGTS":          col_valor("FGTS", "Informe o valor manualmente"),
             "INSS Retido":   col_valor("INSS Retido", "Informativo — não é custo extra"),
             "VR":            col_valor("VR", "Vale Refeição"),
             "VT":            col_valor("VT", "Vale Transporte"),
@@ -191,7 +191,6 @@ with tab_folha:
         + parse_br(row["VR"]) + parse_br(row["VT"])
         for _, row in df_folha_edit.iterrows()
     )
-    st.caption("💡 **FGTS** calculado automaticamente (8% de Salário + Bônus) para CLT se deixado em 0,00.")
     st.metric("Custo Total da Folha (estimado)", fmt_brl(total_folha))
 
     st.divider()
@@ -201,8 +200,6 @@ with tab_folha:
                 sal  = parse_br(row["Salário Bruto"])
                 bon  = parse_br(row["Bônus"])
                 fgts = parse_br(row["FGTS"])
-                if row["tipo_raw"] == "clt" and fgts == 0 and (sal + bon) > 0:
-                    fgts = round((sal + bon) * 0.08, 2)
                 db_rpc("fn_upsert_folha", {
                     "p_funcionario_id": str(row["func_id"]),
                     "p_competencia":    comp,
